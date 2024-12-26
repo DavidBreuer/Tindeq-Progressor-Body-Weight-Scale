@@ -2,21 +2,6 @@
 
 # Modified from: https://github.com/blims/Tindeq-Progressor-API
 
-
-txt = """
-info@tindeq.com
-
-Dear tindeq team, thanks for this excellent, useful, and flexbile device!
-I've been using the Tindeq Progressor 200 for some months now and have one feedback/suggestion/feature request for the Tindeq app:
-    
-    
-
-
-"""
-
-
-
-
 import platform
 import logging
 import asyncio

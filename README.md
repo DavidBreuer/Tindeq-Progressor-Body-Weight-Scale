@@ -16,11 +16,11 @@ This application has two benefits (and might be easily integrated in the Tindeq 
 
 Happy playing / training / measuring!
 
-### Example output graph and body weight result:
+### Example output graph and body weight result
 
 ![Example-Body-Weight-Scale](client_example.png)
 
-### Simple formulas to estimate body weight based on measurements:
+### Simple formulas to estimate body weight based on measurements
 
 $$
 \begin{align*}
