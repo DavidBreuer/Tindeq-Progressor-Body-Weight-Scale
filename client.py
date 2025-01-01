@@ -2,17 +2,18 @@
 
 # Modified from: https://github.com/blims/Tindeq-Progressor-API
 
-import platform
-import logging
 import asyncio
-import struct
-import csv
-import time
 import datetime
+import logging
+import os
+import platform
+import struct
+import time
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from bleak import BleakClient
 from bleak import BleakScanner
@@ -63,7 +64,16 @@ current_cmd_request = None
 
 datad = []
 
+# test data for plotting
+# datad = [[val, val+np.random.rand()] for val in np.arange(0, 5, 0.1)]
+
 def plot_measurments(datad):
+    
+    name = 'client.xlsx'
+    
+    ncols = 1
+    if os.path.isfile(name):
+        ncols = 2
 
     datad = np.array(datad)
     time = datad[:, 0]
@@ -75,21 +85,49 @@ def plot_measurments(datad):
     med = np.median(vec)
     mad = np.median(np.absolute(vec - np.median(vec)))
     
-    plt.plot(time[:half+1], weight[:half+1], color="gray")
-    plt.plot(time[half+0:], weight[half+0:], color="orange")
-    plt.plot(time, 0*weight + med, color="red")
+    fig, axs = plt.subplots(ncols=ncols)
     
-    plt.xlabel('Time [s]')
-    plt.ylabel('Weight [kg]')
-    plt.title(f'Measurement = {med:.2f} ± {mad:.2f} kg')
-    plt.grid()
+    ax0, ax1 = axs
+    ax0.plot(time[:half+1], weight[:half+1], color="gray")
+    ax0.plot(time[half+0:], weight[half+0:], color="orange")
+    ax0.plot(time, 0*weight + med, color="red")
+    
+    ax0.set_xlabel('Time [s]')
+    ax0.set_ylabel('Weight [kg]')
+    ax0.set_title(f'Measurement = {med:.2f} ± {mad:.2f} kg')
+    ax0.grid()
+    
+    if ncols == 2:
+        now = datetime.datetime.now()
+        tab = pd.read_excel(name)
+        row = [now, med, mad]
+        tab.loc[tab.index.max() + 1] = row
+        
+        times = tab["Timestamp"]
+        meds = tab["Weight"]
+        mads = tab["Confidence"]
+        
+        dura = (times.iloc[-1] - times.iloc[0]).total_seconds() / (24*60*60)
+        
+        trnd = (meds.iloc[-1] - meds.iloc[0]) / dura
+        trnp = 0.5 * (mads.iloc[-1] + mads.iloc[0]) / dura
+        
+        ax1.fill_between(times, meds-mads, meds+mads, color="orange", alpha=0.2)
+        ax1.plot(times, meds, color="red")
+        
+        ax1.set_xlabel('Time [s]')
+        ax1.set_ylabel('Weight [kg]')
+        ax1.set_title(f'Trend = {trnd:.2f} ± {trnp:.2f} kg/d')
+        ax1.grid()
+        
+        tab.to_excel(name, index=False, freeze_panes=(1,1))
+    
     plt.savefig('client.png')
     plt.show()   
     
     print("DONE")
     
     return None
-
 
 
 def notification_handler(sender, data):
