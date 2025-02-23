@@ -8,6 +8,7 @@ import logging
 import os
 import platform
 import struct
+import sys
 import time
 
 import matplotlib
@@ -120,7 +121,10 @@ def plot_measurments(datad):
         ax1.set_title(f'Trend = {trnd:.2f} ± {trnp:.2f} kg/d')
         ax1.grid()
         
-        tab.to_excel(name, index=False, freeze_panes=(1,1))
+        args = sys.argv
+        print("args", args)
+        if len(args) < 2:
+            tab.to_excel(name, index=False, freeze_panes=(1,1))
     
     plt.savefig('client.png')
     plt.show()   
@@ -206,7 +210,10 @@ async def run(loop, debug=False):
 
 
 if __name__ == "__main__":
-
+    
+    args = sys.argv
+    print("args", args)
+    
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(loop, debug=False))
     plot_measurments(datad)
