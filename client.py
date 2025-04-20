@@ -70,11 +70,9 @@ datad = []
 
 def plot_measurments(datad):
     
-    name = 'client.xlsx'
+    tabname = 'client.xlsx'
     
-    ncols = 1
-    if os.path.isfile(name):
-        ncols = 2
+    overwrite = os.path.isfile(tabname)
 
     datad = np.array(datad)
     time = datad[:, 0]
@@ -86,7 +84,7 @@ def plot_measurments(datad):
     med = np.median(vec)
     mad = np.median(np.absolute(vec - np.median(vec)))
     
-    fig, axs = plt.subplots(ncols=ncols)
+    fig, axs = plt.subplots(ncols=2)
     
     ax0, ax1 = axs
     ax0.plot(time[:half+1], weight[:half+1], color="gray")
@@ -98,15 +96,18 @@ def plot_measurments(datad):
     ax0.set_title(f'Measurement = {med:.2f} ± {mad:.2f} kg')
     ax0.grid()
     
-    if ncols == 2:
-        now = datetime.datetime.now()
-        tab = pd.read_excel(name)
-        row = [now, med, mad]
+    now = datetime.datetime.now()
+    row = [now, med, mad]
+    cols = ["Timestamp", "Weight", "Confidence"]
+    
+    if overwrite:
+        
+        tab = pd.read_excel(tabname)
         tab.loc[tab.index.max() + 1] = row
         
-        times = tab["Timestamp"]
-        meds = tab["Weight"]
-        mads = tab["Confidence"]
+        times = tab[cols[0]]
+        meds = tab[cols[1]]
+        mads = tab[cols[2]]
         
         dura = (times.iloc[-1] - times.iloc[0]).total_seconds() / (24*60*60)
         
@@ -121,12 +122,18 @@ def plot_measurments(datad):
         ax1.set_title(f'Trend = {trnd:.2f} ± {trnp:.2f} kg/d')
         ax1.grid()
         
-        args = sys.argv
-        print("args", args)
-        if len(args) < 2:
-            tab.to_excel(name, index=False, freeze_panes=(1,1))
+    else:
+        
+        tab = pd.DataFrame([row], columns=cols)
+        
+    args = sys.argv
+    print("args", args)
+    if len(args) < 2:
+        tab.to_excel(tabname, index=False, freeze_panes=(1,1))
     
-    plt.savefig('client.png')
+    figname = 'client.png'
+    
+    plt.savefig(figname)
     plt.show()   
     
     print("DONE")

@@ -20,6 +20,14 @@ Happy playing / training / measuring!
 
 ![Example-Body-Weight-Scale](client_example.png)
 
+## Usage instructions
+
+After installing the required Python libraries (bleak, matplotlib, pandas), run:
+
+python client.py [donotsaveresults]
+
+The last parameter is optional and prevents the outputs being written to a spreadsheet file.s
+
 ### Simple formulas to estimate body weight based on measurements
 
 $$
